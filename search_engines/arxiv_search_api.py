@@ -1,24 +1,13 @@
 import os
 import urllib
-import difflib
 import hashlib
 import requests
 import xmltodict
+from search_engines import common
 
-def similar(seq1, seq2):
-    return difflib.SequenceMatcher(a=seq1.lower(), b=seq2.lower()).ratio() > 0.9
-
-def download_pdf(url,save_as_file):
-
-    response = urllib.request.urlopen(url)
-    file = open(save_as_file, 'wb')
-    file.write(response.read())
-    file.close()
-    print("Download Completed")
 
 def arxiv_query(paper_title):
     title_hash = hashlib.sha1(paper_title.encode('utf-8')).hexdigest()
-    # title_hash = 'hello'
     save_filepath = './tmp/{}.pdf'.format(title_hash)
     if os.path.exists(save_filepath):
         return save_filepath
@@ -31,7 +20,7 @@ def arxiv_query(paper_title):
     headers = {'Content-Type': 'application/json;charset=UTF-8'}
     param = urllib.parse.urlencode(payload)  # encodes the data
     url = 'http://export.arxiv.org/api/query'.format(paper_title)
-    print(param)
+    # print(param)
     response = requests.get(url, params=param, headers=headers)
     data = response.content
     data = xmltodict.parse(data)
@@ -43,14 +32,13 @@ def arxiv_query(paper_title):
     # links = [None] * num_results
     for i in range(num_results):
         title = data['feed']['entry'][i]['title']
-        if similar(title, paper_title):
+        if common.similar(title, paper_title):
             possible_links = data['feed']['entry'][i]['link']
             for link in possible_links:
                 if link['@type'] == 'application/pdf':
                     pdf_link = link['@href']
 
-
-                    download_pdf(pdf_link, save_filepath)
+                    common.download_pdf(pdf_link, save_filepath)
                     return save_filepath
             # print('{} has link {}'.format(title, pdf_link))
 

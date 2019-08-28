@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 
 from reader import csv_reader
 from search_engines import arxiv_search_api
-from utils import log_utils
 from utils import pdf_utils
 
 
@@ -16,7 +15,7 @@ def main(cfg):
 
     # papers_lst = ['LiveSketch: Query Perturbations for Guided Sketch-based Visual Search',
     #               'Region Proposal by Guided Anchoring']
-    logger = log_utils.create_logger('./logger.txt')
+
     conf_file = cfg.input
     if conf_file[-3:] == 'csv':
         papers_lst = csv_reader.read_papers(conf_file);
@@ -28,15 +27,12 @@ def main(cfg):
         papers_lst = papers_lst[:cfg.max] ## download first 20 papers only
 
     found_lst = []
-    for paper_title in papers_lst:
-        saved_as = arxiv_search_api.arxiv_query(paper_title)
+    for paper in papers_lst:
+        saved_as = arxiv_search_api.arxiv_query(paper)
         if saved_as is not None:
-            # print('{} saved as {}'.format(paper, saved_as))
-            logger.info('{} saved as {}'.format(paper_title, saved_as))
+            print('{} saved as {}'.format(paper, saved_as))
             found_lst.append(saved_as)
-        else:
-            logger.error('{} not found'.format(paper_title))
-
+    # print(found_lst)
     pdf_utils.merge_files(found_lst,cfg.output)
 
 if __name__ == '__main__':

@@ -1,9 +1,8 @@
-from argparse import ArgumentParser
-
+import nltk
+import numpy as np
 from reader import csv_reader
-from search_engines import arxiv_search_api
-from utils import log_utils
-from utils import pdf_utils
+from nltk.corpus import stopwords
+from argparse import ArgumentParser
 
 
 def filter_papers(papers,keyword):
@@ -16,28 +15,27 @@ def main(cfg):
 
     # papers_lst = ['LiveSketch: Query Perturbations for Guided Sketch-based Visual Search',
     #               'Region Proposal by Guided Anchoring']
-    logger = log_utils.create_logger('./logger.txt')
+
     conf_file = cfg.input
     if conf_file[-3:] == 'csv':
         papers_lst = csv_reader.read_papers(conf_file);
     else:
         raise NotImplementedError('{} format is not an supported format'.format(conf_file[-3]))
 
-    papers_lst = filter_papers(papers_lst,'metric')
-    if cfg.max > -1:
-        papers_lst = papers_lst[:cfg.max] ## download first 20 papers only
-
-    found_lst = []
-    for paper_title in papers_lst:
-        saved_as = arxiv_search_api.arxiv_query(paper_title)
-        if saved_as is not None:
-            # print('{} saved as {}'.format(paper, saved_as))
-            logger.info('{} saved as {}'.format(paper_title, saved_as))
-            found_lst.append(saved_as)
-        else:
-            logger.error('{} not found'.format(paper_title))
-
-    pdf_utils.merge_files(found_lst,cfg.output)
+    all_words = ' '.join(papers_lst).lower().split()
+    unique_words = list(set(all_words))
+    unique_words_count = np.zeros(len(unique_words))
+    stop_words = set(stopwords.words('english'))
+    for word in all_words:
+        if not word in stop_words:
+            word_idx = unique_words.index(word)
+            unique_words_count[word_idx] +=1
+    sorted_idxs = np.argsort(unique_words_count)[::-1][:100]
+    print(unique_words_count[sorted_idxs ])
+    print([unique_words[i] for i in sorted_idxs])
+    # words, counts = np.unique(np.array(all_words),return_counts=True)
+    # print(words[:20])
+    # print(counts[:20])
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Conf2pdf script')
