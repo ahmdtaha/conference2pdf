@@ -1,6 +1,7 @@
 import nltk
 import numpy as np
 from reader import csv_reader
+from reader import txt_reader
 from nltk.corpus import stopwords
 from argparse import ArgumentParser
 
@@ -18,7 +19,9 @@ def main(cfg):
 
     conf_file = cfg.input
     if conf_file[-3:] == 'csv':
-        papers_lst = csv_reader.read_papers(conf_file);
+        papers_lst = csv_reader.read_papers(conf_file)
+    elif conf_file[-3:] == 'txt':
+        papers_lst = txt_reader.read_papers(conf_file)
     else:
         raise NotImplementedError('{} format is not an supported format'.format(conf_file[-3]))
 
@@ -55,8 +58,8 @@ if __name__ == '__main__':
 
 
     args = [
-        '--output','cvpr2019.pdf',
-        '--input','./conf/cvpr2019.csv',
+        '--output','nips2019.pdf',
+        '--input','./conf/nips2019.txt',
         '--max', '20',
     ]
     cfg = parser.parse_args(args)

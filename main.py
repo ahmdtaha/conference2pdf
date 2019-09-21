@@ -1,9 +1,10 @@
-from argparse import ArgumentParser
-
-from reader import csv_reader
-from search_engines import arxiv_search_api
 from utils import log_utils
 from utils import pdf_utils
+from reader import csv_reader
+from reader import txt_reader
+from argparse import ArgumentParser
+from search_engines import arxiv_search_api
+
 
 
 def filter_papers(papers,keyword):
@@ -20,10 +21,12 @@ def main(cfg):
     conf_file = cfg.input
     if conf_file[-3:] == 'csv':
         papers_lst = csv_reader.read_papers(conf_file);
+    elif conf_file[-3:] == 'txt':
+        papers_lst = txt_reader.read_papers(conf_file)
     else:
         raise NotImplementedError('{} format is not an supported format'.format(conf_file[-3]))
 
-    papers_lst = filter_papers(papers_lst,'metric')
+    # papers_lst = filter_papers(papers_lst,'metric')
     if cfg.max > -1:
         papers_lst = papers_lst[:cfg.max] ## download first 20 papers only
 
@@ -57,9 +60,9 @@ if __name__ == '__main__':
 
 
     args = [
-        '--output','cvpr2019.pdf',
-        '--input','./conf/cvpr2019.csv',
-        '--max', '20',
+        '--output','nips2019.pdf',
+        '--input','./conf/nips2019.txt',
+        '--max', '-1',
     ]
     cfg = parser.parse_args(args)
     main(cfg)

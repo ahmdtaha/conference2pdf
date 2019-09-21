@@ -1,8 +1,15 @@
-
+import os
+import hashlib
 import requests
 import numpy as np
-# from HTMLParser import HTMLParser
+from utils import pdf_utils
+from search_engines import common
 from html.parser import HTMLParser
+
+from enum import Enum
+class Paper(Enum):
+    TITLE = 3
+    LINK = 6
 
 class MyHTMLParser(HTMLParser):
 
@@ -33,7 +40,7 @@ class MyHTMLParser(HTMLParser):
         print("{}: Encountered a start tag:".format(self.counter+1), tag,attrs)
         self.counter+=1
 
-        if self.parsing_paper and len(attrs) == 1 and attrs[0][0] == 'href' and self.counter == 6:
+        if self.parsing_paper and len(attrs) == 1 and attrs[0][0] == 'href' and self.counter == Paper.LINK:
             link = attrs[0][1]
             self.papers_links.append(link)
             if len(self.papers_links) != len(self.papers_titles):
@@ -55,7 +62,7 @@ class MyHTMLParser(HTMLParser):
         if self.skip_enabled:
             return
         print("Encountered some data  :", data)
-        if self.parsing_paper and len(data) > 3 and self.counter == 3:
+        if self.parsing_paper and len(data) > 3 and self.counter == Paper.TITLE:
             pre_len = len(self.papers_titles)
             if len(self.papers_titles) == len(self.papers_links):
                 self.papers_titles.append(data)
@@ -80,7 +87,30 @@ def read_papers(openaccess_url):
     np.argmin([len(paper) for paper in parser.papers_titles])
     print(parser.papers_titles)
     print('found {} paper title and {} paper links'.format(len(parser.papers_titles),len(parser.papers_links)))
+    if len(parser.papers_titles) != len(parser.papers_links):
+        print('Something is wrong')
+        quit()
 
+    import pandas as pd
+
+    saved_papers = []
+    papers_hash = []
+    for paper_title, paper_link in zip(parser.papers_titles,parser.papers_links):
+        title_hash = hashlib.sha1(paper_title.encode('utf-8')).hexdigest()
+        papers_hash.append(title_hash)
+        save_filepath = '../tmp/{}.pdf'.format(title_hash)
+        saved_papers.append(save_filepath)
+        if os.path.exists(save_filepath):
+            continue
+
+        common.download_pdf('http://openaccess.thecvf.com/{}'.format(paper_link), save_filepath)
+
+    csv_data = {'Title': parser.papers_titles, 'Link': parser.papers_links,'Name':papers_hash}
+    df = pd.DataFrame.from_dict(csv_data)
+    df.to_csv('./papers_cvpr2019.csv')
+
+    output_pdf = './cvpr_2019.pdf'
+    pdf_utils.merge_files(saved_papers, output_pdf)
 
 if __name__ == '__main__':
     read_papers('http://openaccess.thecvf.com/CVPR2019.py')

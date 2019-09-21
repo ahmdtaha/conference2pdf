@@ -14,3 +14,7 @@ This reduces the overhead of manual searching for papers and swicthing back and 
 * The current script searches arxiv only. So, if the paper is not on arxiv or published on arxiv under a different title. It won't be found
 * [To be fixed soon] The current script assumes a csv file as input, e.g., ./conf/cvpr2019.csv. This will be fixed soon to support other formats.
 * [To be fixed later] Computer vision is my main interest. So I will focus on conferences like CVPR, ICCV, etc. I will try to make the code generic as possible **but If someone interested to support more conferences, you are welcomed.**
+
+## Sample Conferences
+* [CVPR 2019 papers - 3GB pdf](https://drive.google.com/file/d/1zomjKnlBqpdXikEhNlggkt72L-ZCcLo7/view?usp=sharing), [Accepted paper list csv file](https://drive.google.com/file/d/1CrBs5Fdz771hP873nBxYDxju5rG1iM49/view?usp=sharing)
+* [NeurIPS 2019 papers *Subset*](https://drive.google.com/open?id=12sWcO5gAJqFq3MmPgLOueLbEzOQUYulM). The camera ready papers are not released yet

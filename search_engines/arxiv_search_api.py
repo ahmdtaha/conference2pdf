@@ -3,6 +3,7 @@ import urllib
 import hashlib
 import requests
 import xmltodict
+import collections
 from search_engines import common
 
 
@@ -28,18 +29,30 @@ def arxiv_query(paper_title):
         print('No results available')
         return None
 
-    num_results = len(data['feed']['entry'])
-    # links = [None] * num_results
-    for i in range(num_results):
-        title = data['feed']['entry'][i]['title']
+    if type(data['feed']['entry']) == list:
+        num_results = len(data['feed']['entry'])
+        # links = [None] * num_results
+        for i in range(num_results):
+            title = data['feed']['entry'][i]['title']
+            if common.similar(title, paper_title):
+                possible_links = data['feed']['entry'][i]['link']
+                for link in possible_links:
+                    if link['@type'] == 'application/pdf':
+                        pdf_link = link['@href']
+
+                        common.download_pdf(pdf_link, save_filepath)
+                        return save_filepath
+    elif type(data['feed']['entry']) == collections.OrderedDict:
+        title = data['feed']['entry']['title']
         if common.similar(title, paper_title):
-            possible_links = data['feed']['entry'][i]['link']
+            possible_links = data['feed']['entry']['link']
             for link in possible_links:
                 if link['@type'] == 'application/pdf':
                     pdf_link = link['@href']
 
                     common.download_pdf(pdf_link, save_filepath)
                     return save_filepath
+
             # print('{} has link {}'.format(title, pdf_link))
 
     return None
