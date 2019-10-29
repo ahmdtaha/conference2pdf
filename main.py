@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
 
     args = [
-        '--output','nips2019.pdf',
-        '--input','./conf/nips2019.txt',
+        '--output','icml2019.pdf',
+        '--input','./conf/icml2019.txt',
         '--max', '-1',
     ]
     cfg = parser.parse_args(args)

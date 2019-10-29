@@ -40,7 +40,7 @@ class MyHTMLParser(HTMLParser):
         print("{}: Encountered a start tag:".format(self.counter+1), tag,attrs)
         self.counter+=1
 
-        if self.parsing_paper and len(attrs) == 1 and attrs[0][0] == 'href' and self.counter == Paper.LINK:
+        if self.parsing_paper and len(attrs) == 1 and attrs[0][0] == 'href' and self.counter == Paper.LINK.value:
             link = attrs[0][1]
             self.papers_links.append(link)
             if len(self.papers_links) != len(self.papers_titles):
@@ -62,7 +62,7 @@ class MyHTMLParser(HTMLParser):
         if self.skip_enabled:
             return
         print("Encountered some data  :", data)
-        if self.parsing_paper and len(data) > 3 and self.counter == Paper.TITLE:
+        if self.parsing_paper and len(data) > 3 and self.counter == Paper.TITLE.value:
             pre_len = len(self.papers_titles)
             if len(self.papers_titles) == len(self.papers_links):
                 self.papers_titles.append(data)
@@ -107,10 +107,10 @@ def read_papers(openaccess_url):
 
     csv_data = {'Title': parser.papers_titles, 'Link': parser.papers_links,'Name':papers_hash}
     df = pd.DataFrame.from_dict(csv_data)
-    df.to_csv('./papers_cvpr2019.csv')
+    df.to_csv('./papers_iccv2019.csv')
 
-    output_pdf = './cvpr_2019.pdf'
+    output_pdf = './iccv_2019.pdf'
     pdf_utils.merge_files(saved_papers, output_pdf)
 
 if __name__ == '__main__':
-    read_papers('http://openaccess.thecvf.com/CVPR2019.py')
+    read_papers('http://openaccess.thecvf.com/ICCV2019.py')
